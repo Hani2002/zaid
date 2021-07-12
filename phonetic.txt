@@ -1,0 +1,275 @@
+import pandas as pd 
+import re
+from elasticsearch import Elasticsearch
+from unidecode import unidecode
+from difflib import SequenceMatcher
+from configuration import (
+        Elasticsearch_Host,
+        Elasticsearch_Port,
+        Elasticsearch_username,
+        Elasticsearch_pass
+)
+from collections import Counter
+from math import sqrt
+
+class Phonetics () : 
+    
+    def __init__ (self ,normalize_file  ,  settings_file ) : 
+        
+        self.arabic_diacritics = re.compile("""
+                                 ّ    | # Tashdid
+                                 َ    | # Fatha
+                                 ً    | # Tanwin Fath
+                                 ُ    | # Damma
+                                 ٌ    | # Tanwin Damm
+                                 ِ    | # Kasra
+                                 ٍ    | # Tanwin Kasr
+                                 ْ    | # Sukun
+                                 ـ     # Tatwil/Kashida
+                             """, re.VERBOSE)
+                      
+        
+        self.settings_file = settings_file 
+        self.normalize_file = normalize_file
+
+    def remove_diacritics(self,text , language = "en"):
+        text = re.sub(self.arabic_diacritics, '', text)
+        return text
+    
+    def normalize (self,text , language = "en" ):
+        normalize_file = self.normalize_file[self.normalize_file['language']==language]
+        for index , row in normalize_file.iterrows() :
+            text = re.sub(row['character'], row['replae_to'], text)
+        text = re.sub(' ','', text)
+        return text.lower().strip()
+
+    def word2vec(self,word):
+        # count the characters in word
+        cw = Counter(word)
+        # precomputes a set of the different characters
+        sw = set(cw)
+        # precomputes the "length" of the word vector
+        lw = sqrt(sum(c*c for c in cw.values()))
+        # return a tuple
+        return cw, sw, lw
+
+    def cosdis(self,v1, v2):
+        # which characters are common to the two words?
+        common = v1[1].intersection(v2[1])
+        # by definition of cosine distance we have
+        score = sum(v1[0][ch]*v2[0][ch] for ch in common)/v1[2]/v2[2]
+
+        if score <= 0.86 and  score > 0.60 : 
+            score =score +  score * 12/100
+        elif score < 0.90 and   0.85 > score  :
+            score = score * 0.7/100
+        if  score >= 1  : 
+            score = 1
+
+        score = score * 100
+        return  score 
+
+    # Over All Search 
+    def calculate_overall_weight_for_search (self, result:dict , obj_search : dict ,  weight_type='local_weight' ) -> float :
+        count ,total = 0 , 0  
+        for index in  result.keys():
+            settings = self.settings_file[self.settings_file['index'] == index]
+            if index in ['names','parties','parties_country']:
+                for key , value in result[index].items() :
+
+                    if  obj_search[index][key]  != '' :
+                        key_info = settings[settings['field']== key]
+                        count +=key_info.iloc[0,:][weight_type]
+                        total = total + value['ratio']  *  key_info.iloc[0,:][weight_type]
+            else :
+                for obj in  result[index] :
+                    for key , value in obj.items() :
+                        if obj_search[index][key]  != '' :
+                            key_info = settings[settings['field']== key]
+                            count +=key_info.iloc[0,:][weight_type]
+                            #print (key,':', value['ratio']  ,' * ', key_info.iloc[0,:][weight_type],' = ', value['ratio']  *  key_info.iloc[0,:][weight_type] ) 
+                            total = total + value['ratio']  *  key_info.iloc[0,:][weight_type]
+        if total == 0 or count == 0 : return 0 
+        return  total/ count  
+ 
+    # Over all Compare
+    def calculate_overall_weight_for_compare (self, result:dict,  weight_type='local_weight' ) -> float :
+        count , total = 0 , 0 
+        for index in  result.keys():
+            settings = self.settings_file[self.settings_file['index'] == index]
+            for key , value in result[index].items() :
+                if  result[index][key]['object_one'] != '' :
+                    key_info = settings[settings['field']== key]
+                    count +=key_info.iloc[0,:][weight_type]
+                    total = total + value['ratio']  *  key_info.iloc[0,:][weight_type]
+        if total == 0 or count == 0 : return 0 
+        return  total/ count  
+
+    def similarity_ratio_calculator (self ,field_one : str, field_two : str ,language = 'ar', pre_processing=True ) -> float : 
+        field_one = field_one.lower().strip()
+        field_two = field_two.lower().strip()
+        if language == 'ar' :
+            if  pre_processing == True : 
+                # field one preprocssing
+                field_one  = self.remove_diacritics(field_one , language = language)
+                field_one = self.normalize(field_one , language = language )
+                # field two preprocssing
+                field_two  = self.remove_diacritics(field_two , language = language)
+                field_two = self.normalize(field_two , language = language )
+            if field_one == '' or field_two== '' :
+                score = 0
+            else :
+                v_doc_1 = self.word2vec(field_one)
+                v_doc_2 = self.word2vec(field_two)
+                score = self.cosdis(v_doc_1,v_doc_2)
+        elif language == 'en' :
+            if  pre_processing == True : 
+                # field one preprocssing
+                field_one  = self.remove_diacritics(field_one , language = language)
+                field_one = self.normalize(field_one , language = language )
+                # field two preprocssing
+                field_two  = self.remove_diacritics(field_two , language = language)
+                field_two = self.normalize(field_two , language = language )
+
+            if field_one == '' or field_two== '' :
+                score = 0
+            else :
+                v_doc_1 = self.word2vec(field_one)
+                v_doc_2 = self.word2vec(field_two)
+                score = self.cosdis(v_doc_1,v_doc_2)
+                
+        len_v = abs (len(field_one) - len (field_two)) 
+        if len_v >= 3 and score > 88 : 
+                 score = score - len_v * 6 
+        return score
+
+
+    def compare_similarity_for_two_object (self , object_one : dict , object_two : dict , pre_processing = True  , party_type='indiviuals') -> dict : 
+        
+        obj_data = dict()
+        if object_one.keys() != object_two.keys()  : 
+            return {"msg":"The two objects are not identical in structure."}
+            
+        for index , _object in object_one.items() :
+            obj_data[index] = dict() 
+            if object_one[index] == [] or object_two[index] ==[] :
+                continue 
+            
+            settings = self.settings_file[ (self.settings_file['index'] == index) & (self.settings_file['keys'] == False ) ]
+
+            for  row_id , row in settings.iterrows() :
+                similarity_ratio = 0 
+
+                if row['field'] in object_one[index].keys() and row['field'] in object_two[index].keys():
+                    if object_one[index][row['field']] != "" or object_two[index][row['field']] != "" : 
+                        if row['search_type'] == "phonetics" : 
+                            object_one[index][row['field']] = object_one[index][row['field']].strip() 
+                            object_two[index][row['field']] = object_two[index][row['field']].strip()   
+                            similarity_ratio = self.similarity_ratio_calculator(
+                                                                field_one = object_one[index][row['field']] , 
+                                                                field_two = object_two[index][row['field']] ,
+                                                                language = row['language'] , 
+                                                                pre_processing = pre_processing) 
+                        elif row['search_type'] == "deterministic" : 
+                            if object_one[index][row['field']]  == object_two[index][row['field']]  : 
+                                similarity_ratio = 100
+                            else : 
+                                similarity_ratio = 0
+                if row['field'] in object_one[index] and  row['field'] in object_two[index] : 
+                    object_one_value = object_one[index][row['field']]
+                    object_two_value = object_two[index][row['field']]
+                    obj_data[index][row['field']] = {
+                    "object_one":object_one_value,
+                    "object_two":object_two_value,
+                    "ratio":similarity_ratio
+                    }
+        obj_data['over_all_ratio'] = self.calculate_overall_weight_for_compare(result = obj_data )
+        return obj_data
+
+
+
+
+
+
+
+
+    def search_similarity_for_two_object(self , obj_search : dict , obj_result : dict , pre_processing = True  ) -> dict :
+        new_obj = dict()
+        for index in obj_search.keys () :
+
+            if index in ['names','parties','parties_country'] :
+                settings = self.settings_file[ (self.settings_file['index'] == index)]
+                new_obj[index]=dict()
+                for key , value in obj_result[index].items() : 
+                    if key in obj_search[index].keys() :
+                        field_settings =  settings[settings['field'] == key ]
+                        if field_settings.iloc[0,:]['search_type'] == "phonetics": 
+                            field_one = obj_search[index][key].strip() 
+                            field_two = obj_result[index][key].strip()
+                            if field_one != '' or field_one !='' : 
+                                similarity_ratio = self.similarity_ratio_calculator(
+                                                                            field_one = field_one, 
+                                                                            field_two = field_two,
+                                                                            language =field_settings.iloc[0,:]['language'],
+                                                                            pre_processing = pre_processing)  
+                            else : 
+                                similarity_ratio =  0
+                        else : 
+                            if obj_search[index][key] == obj_result[index][key] : 
+                                similarity_ratio = 100 
+                            else : 
+                                similarity_ratio =  0
+                        new_obj[index][key] = {"value":value , "ratio" : similarity_ratio  }
+                    else:
+                        new_obj[index][key] = {"value":value , "ratio" : 0  }
+
+            elif index in ['nationalities'] : 
+                settings = self.settings_file[ (self.settings_file['index'] == index)  ] 
+                new_obj[index]=list()
+
+                if obj_search[index] in [list() , dict() ] :
+                    for obj in obj_result[index] : 
+                        obj_result_nat =dict()
+                        for key , value in obj.items() : 
+                            obj_result_nat[key] = {"value":value , "ratio" : 0  }
+                        new_obj[index].append(obj_result_nat)
+
+                elif len ( obj_search[index]) > 0  and len( obj_result[index]) > 0   :
+
+                    for obj in obj_result[index] : 
+                        for  obj_search_nat in obj_search[index] : 
+
+                            if obj['Nationality'] == obj_search_nat['Nationality'] :
+
+                                obj_result_nat =dict()
+                                for key , value in obj.items() : 
+
+                                    if key in obj_search_nat.keys() :
+                                        field_settings =  settings[settings['field'] == key ]
+                                        if field_settings.iloc[0,:]['search_type'] == "phonetics": 
+                                            field_one = obj_search[index][key].strip() 
+                                            field_two = obj[key].strip()
+                                            if field_one != '' or field_one !='' : 
+                                                similarity_ratio = self.similarity_ratio_calculator(
+                                                                                            field_one = field_one, 
+                                                                                            field_two = field_two,
+                                                                                            language =field_settings.iloc[0,:]['language'],
+                                                                                            pre_processing = pre_processing
+                                                                                            )  
+                                            else:
+                                                similarity_ratio =  0
+                                        else:
+                                            if obj_search_nat[key] == obj[key] : 
+                                                similarity_ratio = 100 
+                                            else:
+                                                similarity_ratio =  0
+                                        obj_result_nat[key] = {"value":value , "ratio" : similarity_ratio  }
+                                    else:
+                                        obj_result_nat[key] = {"value":value , "ratio" : 0  }
+                                    new_obj[index].append(obj_result_nat)
+                            else:
+                                pass
+                else:
+                    pass
+        new_obj['over_all_ratio'] = self.calculate_overall_weight_for_search(result = new_obj , obj_search = obj_search   )
+        return new_obj
