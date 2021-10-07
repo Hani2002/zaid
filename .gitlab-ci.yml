@@ -1,0 +1,40 @@
+before_script:
+  - pwd
+  - git clone http://${CICD_USER}:${CICD_PASSWORD}@10.101.18.33:10080/3rd-party/templates.git
+
+variables: 
+  PORT_NUMBER: 8888
+build-dev:
+  stage: build
+  only: 
+  - dev
+  tags:
+  - cmon04_tag #36
+  variables:
+    PROFILE: dev
+    DOCKER_IMAGE_NAME: phonetics-${PROFILE}
+    
+  script: &build_script
+  - pwd
+  - mv -f templates/profiles/default/${PROFILE}/configuration.py  .
+  - echo "Removing old docker container if exists"
+  - docker rm -f ${DOCKER_IMAGE_NAME} ||  true
+
+  - echo "Build new docker image (${DOCKER_IMAGE_NAME})"
+  - cat Dockerfile | envsubst | docker build -t ${DOCKER_IMAGE_NAME}:v1  -f - .
+
+  - echo "Run docker image"   
+  - docker run --name=${DOCKER_IMAGE_NAME} -d --net=host --memory="1g" --memory-swap="2g" --restart always ${DOCKER_IMAGE_NAME}:v1  
+  - echo "App started on port ${PORT_NUMBER}"
+  
+build-staging:
+  stage: build
+  only:
+  - master
+  tags:
+  - phonetics_tag #10.101.15.30
+  variables:
+    PROFILE: staging
+    DOCKER_IMAGE_NAME: phonetics-${PROFILE}
+    
+  script: *build_script
