@@ -10,18 +10,7 @@ from elasticsearch import Elasticsearch
 import hashlib
 import json
 import pandas as pd
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
 import numpy as np
-import math
-import string
-import sys
-import argparse
-from bidi.algorithm import get_display
-import arabic_reshaper
-from sklearn.metrics.pairwise import cosine_similarity 
-from validate import validations
-import requests 
 from phonetic import Phonetics 
 from configuration import (
         Elasticsearch_Host,
@@ -30,6 +19,8 @@ from configuration import (
         Elasticsearch_pass
 )
 import operator
+
+
 class Operations () : 
     
     def __init__(self) : 
@@ -458,13 +449,18 @@ class Operations () :
                     obj_data[index]= dict()
 
             if obj_data !=dict() :
+                print(  "Party ID : ",obj_keys['party_id'])
                 result_with_weight = self.obj_phonetics.search_similarity_for_two_object(
                                                             obj_search = source_obj['object'] ,  
                                                             obj_result = obj_data , 
                                                             pre_processing = True )
 
+                
+               
                 over_all_ratio = result_with_weight['over_all_ratio']
+                auto_marge = result_with_weight['auto_marge']
                 del result_with_weight['over_all_ratio']
+                del result_with_weight['auto_marge']
 
                
                 if  result_with_weight['nationalities'] in [dict() ,list() , None ] : 
@@ -473,9 +469,10 @@ class Operations () :
                         obj_nat = dict() 
                         for key , value in obj.items() : 
                             obj_nat[key] = {"ratio": 0 , "value":value }
+                        obj_nat['section_match_ratio'] = 0 
                         result_with_weight['nationalities'].append(obj_nat)
 
-                obj_data = {"keys": obj_keys ,"object":result_with_weight , "over_all_ratio": over_all_ratio }
+                obj_data = {"keys": obj_keys ,"object":result_with_weight , "over_all_ratio": over_all_ratio ,'auto_marge':auto_marge}
 
                 if over_all_ratio != 0 :
                     data.append (obj_data)

@@ -1,15 +1,9 @@
-from flask import Flask, request, jsonify, make_response 
-from flask_sqlalchemy import SQLAlchemy
+from flask import  request, jsonify, make_response 
 from functools import wraps 
-from  werkzeug.security import generate_password_hash, check_password_hash 
-import uuid 
 from settings_app import  settings_app 
-from manage import  User , db , token_required
 import jwt
-from datetime import datetime
-from datetime import timedelta
 from functools import wraps 
-from functions import Operations , validations 
+from functions import Operations 
 from configuration import config
 import json
 

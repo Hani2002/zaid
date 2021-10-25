@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, make_response 
 import os 
-from flask_sqlalchemy import SQLAlchemy
 import jwt 
 from functools import wraps 
 from functions import Operations
@@ -10,48 +9,6 @@ app = Flask(__name__)
 # Add Configuration 
 for key , value in config.items() : 
     app.config[key] = value
-
-
-# Create DB USER Table 
-db = SQLAlchemy(app) 
-
-class User (db.Model):
-    id = db.Column(db.Integer, primary_key = True) 
-    public_id = db.Column(db.String(50), unique = True) 
-    name = db.Column(db.String(100)) 
-    email = db.Column(db.String(70), unique = True) 
-    password = db.Column(db.String(80)) 
-    status = db.Column (db.Boolean , default=False )
-
-# db.create_all()
-# db.session.commit()
-#==============
-
-# JWT decorated
-def token_required(f): 
-    @wraps(f) 
-    def c(*args, **kwargs): 
-        token = None
-        # jwt is passed in the request header 
-        if 'x-access-token' in request.headers: 
-            token = request.headers['x-access-token'] 
-        # return 401 if token is not passed 
-        if not token: 
-            return jsonify({'message' : 'Token is missing !!'}), 401
-   
-        try: 
-            # decoding the payload to fetch the stored details 
-            data = jwt.decode(token, config['SECRET_KEY']) 
-            current_user = User.query.filter_by(public_id = data['public_id']).first() 
-        except: 
-            return jsonify({ 
-                'message' : 'Token is invalid !!'
-            }), 401
-        # returns the current logged in users contex to the routes 
-        return  f(current_user, *args, **kwargs) 
-   
-    return decorated 
-
 
 # Add Apps
 from auth_app import auth 
@@ -67,8 +24,6 @@ app.register_blueprint(settings_app)
 def hello():
     return "Hello Arab Bank"  
 
-#==============================================================================================================================================
-# Create Error Handler 
 @app.errorhandler(400)
 def handle_400_error(_error):
     """Return a http 400 error to client"""
@@ -114,7 +69,6 @@ def handle_404_error(_error):
 def handle_500_error(_error):
     """Return a http 500 error to client"""
     return make_response(jsonify({'error': 'Server error'}), 500)
-#==============================================================================================================================================
 
 if __name__ == "__main__":
     app.run(host=HOST, port=PORT, debug=DEBUG) 

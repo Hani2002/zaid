@@ -1,10 +1,8 @@
-from flask import Flask, request, jsonify, make_response 
-from flask_sqlalchemy import SQLAlchemy
+from flask import  request, jsonify, make_response 
 from functools import wraps 
 from  werkzeug.security import generate_password_hash, check_password_hash 
 import uuid 
 from auth_app import  auth 
-from manage import  User , db
 import jwt
 from datetime import datetime
 from datetime import timedelta
@@ -121,7 +119,7 @@ def signup():
 # route for loging user in 
 @auth.route('/auth/login', methods =['POST']) 
 def login(): 
-    try : 
+    #try : 
         # creates dictionary of form data 
         data = request.get_json()
         obj_Operations = Operations()
@@ -163,9 +161,9 @@ def login():
         obj_Operations.add_to_log (headers = headers , status = 403 , operation=endpoint , public_id='' , input=input , output= json.dumps(output) )
         obj_Operations.close_connection() 
         return make_response( {'status':False,'msg':'Could not verify'}, 403, {'WWW-Authenticate' : 'Basic realm ="Wrong Password !!"'} ) 
-    except : 
-        results , status = { "status":False,"msg":"error in login endpoint."} , 400
-        return make_response(jsonify(results), status )
+    #except : 
+    #    results , status = { "status":False,"msg":"error in login endpoint."} , 400
+    #    return make_response(jsonify(results), status )
 
 # route for loging user in 
 @auth.route('/auth/change_pass', methods =['POST']) 

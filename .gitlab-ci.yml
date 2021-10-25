@@ -1,7 +1,3 @@
-before_script:
-  - pwd
-  - git clone http://${CICD_USER}:${CICD_PASSWORD}@10.101.18.33:10080/3rd-party/templates.git
-
 variables: 
   PORT_NUMBER: 8888
 build-dev:
@@ -12,20 +8,28 @@ build-dev:
   - cmon04_tag #36
   variables:
     PROFILE: dev
-    DOCKER_IMAGE_NAME: phonetics-${PROFILE}
+    BRANCH_GIT : dev
+    BUILD_DIR: /data
     
   script: &build_script
+  - systemctl stop gunicorn
   - pwd
-  - mv -f templates/profiles/default/${PROFILE}/configuration.py  .
-  - echo "Removing old docker container if exists"
-  - docker rm -f ${DOCKER_IMAGE_NAME} ||  true
-
-  - echo "Build new docker image (${DOCKER_IMAGE_NAME})"
-  - cat Dockerfile | envsubst | docker build -t ${DOCKER_IMAGE_NAME}:v1  -f - .
-
-  - echo "Run docker image"   
-  - docker run --name=${DOCKER_IMAGE_NAME} -d --net=host --memory="1g" --memory-swap="2g" --restart always ${DOCKER_IMAGE_NAME}:v1  
-  - echo "App started on port ${PORT_NUMBER}"
+  - cd ${BUILD_DIR}
+  - pwd
+  - rm -rf ${BUILD_DIR}/phonetics ${BUILD_DIR}/templates
+  - echo ${PROFILE}
+  - echo ${BRANCH_GIT}
+  - git clone --branch ${BRANCH_GIT} http://${CICD_USER}:${CICD_PASSWORD}@10.101.18.33:10080/3rd-party/phonetics.git
+  - cd ${BUILD_DIR}/phonetics
+  - git clone http://${CICD_USER}:${CICD_PASSWORD}@10.101.18.33:10080/3rd-party/templates.git
+  - pwd
+  - mv -f templates/profiles/default/${PROFILE}/configuration.py .
+  - cd ${BUILD_DIR}/phonetics
+  - rm -rf venv
+  - virtualenv --python=python3.6 venv
+  - source venv/bin/activate
+  - pip3 install -r requirements.txt
+  - systemctl start gunicorn
   
 build-staging:
   stage: build
@@ -35,6 +39,7 @@ build-staging:
   - phonetics_tag #10.101.15.30
   variables:
     PROFILE: staging
-    DOCKER_IMAGE_NAME: phonetics-${PROFILE}
+    BRANCH_GIT : master
+    BUILD_DIR: /MDM
     
   script: *build_script

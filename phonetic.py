@@ -1,21 +1,9 @@
-from operator import imod
-import pandas as pd 
 import re
-from elasticsearch import Elasticsearch
-from unidecode import unidecode
 from difflib import SequenceMatcher
-from configuration import (
-        Elasticsearch_Host,
-        Elasticsearch_Port,
-        Elasticsearch_username,
-        Elasticsearch_pass
-)
 from collections import Counter
 from math import sqrt
-#import nltk
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np 
-from sklearn.metrics import jaccard_score
 import string 
 
 class Phonetics () : 
@@ -95,9 +83,10 @@ class Phonetics () :
              score = score - 5 
         return int (score) 
 
+ 
+
     # Over All Search 
     def calculate_overall_weight_for_search (self, result:dict , obj_search : dict ,  weight_type='local_weight' ) -> float :
-
         count ,total = 0 , 0  
         for index in  result.keys():
             settings = self.settings_file[self.settings_file['index'] == index]
@@ -112,10 +101,15 @@ class Phonetics () :
                                 print(key , "  " , key_info.iloc[0,:][weight_type] , "  " , value['ratio']  *  float (key_info.iloc[0,:][weight_type]) )
             else :
                 
-                for obj in  result[index] :
+                for   obj in  result[index] :
+                    index_nat_search = None
+                    for id , nat_obj_search in enumerate (obj_search[index]) : 
+                        if nat_obj_search ['nationality'].lower() == obj['nationality']['value'].lower() :
+                            index_nat_search = id
+                            break
                     for key , value in obj.items() :
                         key_info = settings[settings['field']== key]
-                        if  value['value']  not in [ "",'' , ' ' , None ]  :
+                        if  obj_search[index][index_nat_search][key] not in [ "",'' , ' ' , None ]  :
                             if key_info.iloc[0,:]['weight_calculation'] :
                                 count +=float (key_info.iloc[0,:][weight_type])
                                 total = total + value['ratio']  *  float (key_info.iloc[0,:][weight_type])
@@ -130,6 +124,7 @@ class Phonetics () :
                         else : 
                             add_count = 10 
                     count = count + add_count 
+
         print ("total : " , total , "count : " ,count  )
         if total == 0 or count == 0 : return 0 
 
@@ -137,7 +132,7 @@ class Phonetics () :
         if total > 100 :  return 100 
 
         print("result :" , total )
-        print ("=="*10)
+        print ("=="*20)
     
         return total   
  
@@ -296,15 +291,51 @@ class Phonetics () :
         return obj_data
 
 
+    def calculate_section_match_ratio (self , object , section_match_ratio ):
 
+        for index in ['names','parties_country','nationalities'] :
+
+            if index != "nationalities" : 
+                if section_match_ratio[index]['index_wight'] != 0 and section_match_ratio[index]['index_count'] !=0: 
+                    ratio = section_match_ratio[index]['index_wight'] / section_match_ratio[index]['index_count']
+                    object[index]['section_match_ratio'] =  round ( ratio , 1)
+                else :
+                    object[index]['section_match_ratio'] = 0 
+            else:
+                if section_match_ratio[index] not in [list() , dict() , None  , '' ] :
+                    for i in range(len(object[index])) :
+                        if section_match_ratio[index][i]['index_count'] == 0 : 
+                            ratio = 0 
+                        elif  section_match_ratio[index][i]['index_count'] == 1  : 
+                            section_match_ratio[index][i]['index_count'] = section_match_ratio[index][i]['index_count'] + 1 
+                            ratio = section_match_ratio[index][i]['index_wight'] / section_match_ratio[index][i]['index_count'] 
+                        else:
+                            ratio = section_match_ratio[index][i]['index_wight'] / section_match_ratio[index][i]['index_count']
+                        object[index][i]['section_match_ratio'] =   round ( ratio , 1)
+                        #new_obj[index][i]['section_match_ratio_details'] = section_match_ratio[index][i]
+        return object
+
+       # Auto Marge for Serach 
+    def calculate_auto_marge ( self , object ) :
+        object['auto_marge'] = False
+        if object['names']['section_match_ratio'] == 100 : 
+            for obj in object ['nationalities'] :
+                if  obj['section_match_ratio'] == 100 :
+                    object['auto_marge'] = True
+        else :
+            object['auto_marge'] = False
+        return object 
+             
 
     def search_similarity_for_two_object(self , obj_search : dict , obj_result : dict , pre_processing = True  ) -> dict :
-        new_obj = dict()
         
+        new_obj = dict()
+        section_match_ratio =dict()
         for index in obj_search.keys () :
 
             if index in ['names','parties','parties_country'] :
-
+                index_wight = 0 
+                index_count = 0 
                 settings = self.settings_file[ (self.settings_file['index'] == index)]
                 new_obj[index]=dict()
                 for key , value in obj_result[index].items() : 
@@ -314,27 +345,41 @@ class Phonetics () :
 
                             if obj_search[index][key] == None : obj_search[index][key] = ""
                             if obj_result[index][key] == None : obj_result[index][key] = ""
+ 
                             field_one = obj_search[index][key].strip() 
                             field_two = obj_result[index][key].strip()
+
+                            if field_one != '' : 
+                                index_count = index_count + 1 
+
                             if field_one != '' or field_one !='' : 
                                 similarity_ratio = self.similarity_ratio_calculator(
                                                                             field_one = field_one, 
                                                                             field_two = field_two,
                                                                             language =field_settings.iloc[0,:]['language'],
-                                                                            pre_processing = pre_processing)  
+                                                                            pre_processing = pre_processing) 
+                                index_wight = index_wight + similarity_ratio 
                             else : 
                                 similarity_ratio =  0
                         else : 
+
+                            if obj_search[index][key] not in [ '' , None ]: 
+                                index_count = index_count + 1
+
                             if obj_search[index][key] == obj_result[index][key] : 
                                 similarity_ratio = 100 
+                                index_wight = index_wight + 100
                             else : 
                                 similarity_ratio =  0
+
                         new_obj[index][key] = {"value":value , "ratio" : similarity_ratio  }
                     else:
                         new_obj[index][key] = {"value":value , "ratio" : 0  }
 
+                section_match_ratio[index] = {'index_wight':index_wight , 'index_count' : index_count}
+                
             elif index in ['nationalities'] : 
-
+                section_match_ratio[index] = list()
                 settings = self.settings_file[ (self.settings_file['index'] == index)  ] 
                 new_obj[index]=list()
 
@@ -343,52 +388,63 @@ class Phonetics () :
                         obj_result_nat =dict()
                         for key , value in obj.items() : 
                             obj_result_nat[key] = {"value":value , "ratio" : 0  }
+                        section_match_ratio['nationalities'].append({'index_wight':0 , 'index_count' : 0})
                         new_obj[index].append(obj_result_nat)
-                    #new_obj = list()
 
                 elif len ( obj_search[index]) >= 1  and len( obj_result[index])>= 1  :
                     
                     for obj in obj_result[index] :
-
+                        
                         for ser_obj in obj_search[index] :
-
+                            index_wight = 0 
+                            index_count = 0
                             if obj['nationality'] == ser_obj['nationality'] and ser_obj['nationality'] != "":
+                                
                                 obj_result_nat =dict()
-                                for key , value in obj.items() : 
-
+                                for key , value in obj.items() :
                                     # similarity calculate
                                     if key in ser_obj.keys() :
+
                                         field_settings =  settings[settings['field'] == key ]
                                         if field_settings.iloc[0,:]['search_type'] == "phonetics": 
                                             field_one = ser_obj[key].strip() 
                                             field_two = obj[key].strip()
-                                            if field_one != '' or field_one !='' : 
+
+                                            if field_one != '' :
                                                 similarity_ratio = self.similarity_ratio_calculator(
                                                                                             field_one = field_one, 
                                                                                             field_two = field_two,
                                                                                             language =field_settings.iloc[0,:]['language'],
                                                                                             pre_processing = pre_processing
                                                                                             )  
+                                                index_wight = index_wight + similarity_ratio
+                                                index_count = index_count + 1
                                             else:
                                                 similarity_ratio =  0
                                         else:
-                                            if ser_obj[key] != "" : 
+                                            if ser_obj[key] != "" :
+                                                index_count = index_count + 1 
+
                                                 if ser_obj[key] == obj[key]  : 
                                                     similarity_ratio = 100
+                                                    index_wight = index_wight + 100
                                                 else:
                                                     similarity_ratio =  0
                                             else :
                                                 similarity_ratio =  0
                                                 value=""
 
-
                                         obj_result_nat[key] = {"value":value , "ratio" : similarity_ratio  }
                                     else:
                                         obj_result_nat[key] = {"value":value , "ratio" : 0  }
 
                                 new_obj[index].append(obj_result_nat)
+                                section_match_ratio[index].append({'index_wight':index_wight , 'index_count' : index_count})
                                 break
                             else:
                                 continue
+               
         new_obj['over_all_ratio'] = self.calculate_overall_weight_for_search(result = new_obj , obj_search = obj_search   )
+        new_obj = self.calculate_section_match_ratio (new_obj , section_match_ratio )
+        new_obj = self.calculate_auto_marge(new_obj)
         return new_obj

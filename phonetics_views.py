@@ -1,18 +1,11 @@
 import json
-import pandas as pd
-import argparse
-import os
-from flask import Flask, request, jsonify, make_response 
-from flask_swagger_ui import get_swaggerui_blueprint
-import uuid 
-from  werkzeug.security import generate_password_hash, check_password_hash 
+from flask import request, jsonify, make_response 
 import jwt 
-from datetime import datetime, timedelta 
-from manage import  User , db , token_required 
 from functools import wraps 
-from functions import Operations , validations 
+from functions import Operations 
 from phonetics_app import phonetics
 from configuration import config 
+from validate import validations
 import re
 
 @phonetics.route('/phonetics/')
@@ -188,7 +181,7 @@ def Update(current_user , party_id):
         for key in required_object_keys : 
             if key not in data['object'].keys() :
                 return {"object":"{} key is requierd.".format(key)}
-                
+
         data['parameters'].update(data['object'])
         data = data['parameters']
 
