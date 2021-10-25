@@ -1,0 +1,2 @@
+party_id,source_country,role,sequence,first_name_ar,second_name_ar,third_name_ar,last_name_ar,full_name_ar,organization,first_name_en,second_name_en,third_name_en,last_name_en,full_name_en,short_name_ar,short_name_en,mother_name_ar,mother_name_en
+test,test,test,test,«Œ »«—,«Œ »«—,«Œ »«—,«Œ »«—,«Œ »«—,test,test,test,test,test,test,«Œ »«—,test,«Œ »«—,test

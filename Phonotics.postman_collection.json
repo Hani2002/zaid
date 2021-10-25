@@ -1,0 +1,1690 @@
+{
+	"info": {
+		"_postman_id": "46740bd0-f96e-4388-834b-0ce271273263",
+		"name": "Phonotics",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "signup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\":\"zeid.zen@gmail.com\",\n\t\"name\":\"zeid zein\",\n\t\"password\":\"zeid1111\"\n}"
+						},
+						"url": {
+							"raw": "{{ip}}/auth/signup",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwdWJsaWNfaWQiOiI2YjYwZWY3Zi0zMDgzLTQ0NjQtOTliMi04YzdiODY0NTQxN2MiLCJleHAiOjE2MjMwNjc4NDB9.L8U1cWzQuhauk_yyHaeA2HUgfnCWOaOdLjmp7lr8G8Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{ip}}/auth/user",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"auth",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\":\"admin@Arabbank.com\",\n\t\"password\":\"12345\" \n}"
+						},
+						"url": {
+							"raw": "{{dev_ip}}/auth/login",
+							"host": [
+								"{{dev_ip}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Hello Auth App",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{dev_ip}}/auth",
+							"host": [
+								"{{dev_ip}}"
+							],
+							"path": [
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change passowrd",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"public_id\":\"0aaed71e-28af-4bac-84f9-90b137e9bfdb\",\n\t\"password\":\"zeid1111\"\n}\n"
+						},
+						"url": {
+							"raw": "{{ip}}/auth/change_pass",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"auth",
+								"change_pass"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "phonetics",
+			"item": [
+				{
+					"name": "checksum",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://10.101.15.30:8888/phonetics/checksum/I2021009625550",
+							"protocol": "http",
+							"host": [
+								"10",
+								"101",
+								"15",
+								"30"
+							],
+							"port": "8888",
+							"path": [
+								"phonetics",
+								"checksum",
+								"I2021009625550"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "compare",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"parameters\": {\n        \"pre_processing\": true,\n        \"party_type\": \"indiviuals\",\n        \"Party_ID_One\": \"\",\n        \"Party_ID_Two\": \"\",\n        \"return_object\": \"object_one\"\n    },\n    \"object_one\": {\n        \"names\": {\n            \"first_name_ar\": \"اميرا\",\n            \"first_name_en\": \"mohmed\",\n            \"full_name_ar\": \"رائدا\",\n            \"full_name_en\": \"dania douqon\",\n            \"last_name_ar\": \"تيا\",\n            \"last_name_en\": \"ALNA'ANAH\",\n            \"orgnization\": \"PLC\",\n            \"role\": \"AH\",\n            \"second_name_ar\": \"عبدالرحمن\",\n            \"second_name_en\": \"MOHAMAD SHAWQI\",\n            \"sequence\": 0,\n            \"source_country\": \"JO\",\n            \"third_name_ar\": \"\",\n            \"third_name_en\": \"mohamad shawqi\",\n            \"short_name_ar\": \"حلا\",\n            \"short_name_en\": \"\",\n            \"mother_name_ar\": \"\",\n            \"mother_name_en\": \"\"\n        },\n        \"nationalities\": [\n            {\n                \"id_number\": 9441011298,\n                \"nationality\": \"JO\"\n            }\n        ],\n        \"parties\": {\n            \"is_searchable\": \"y\",\n            \"is_deleted\": \"n\",\n            \"party_type\": \"AH\"\n        },\n        \"parties_country\": {\n            \"date_of_birth\": \"\",\n            \"country_of_origin\": \"\"\n        }\n    },\n    \"object_two\": {\n        \"names\": {\n            \"first_name_ar\": \"امية\",\n            \"first_name_en\": \"mohmmad\",\n            \"full_name_ar\": \"رائدة\",\n            \"full_name_en\": \"dalida dourgham\",\n            \"last_name_ar\": \"تبا\",\n            \"last_name_en\": \"ALNA'ANAH\",\n            \"orgnization\": \"PLC\",\n            \"role\": \"AH\",\n            \"second_name_ar\": \"عبدالرحمن\",\n            \"second_name_en\": \"RAMADAN\",\n            \"sequence\": 0,\n            \"source_country\": \"JO\",\n            \"third_name_ar\": \"زين\",\n            \"third_name_en\": \"ramadan\",\n            \"short_name_ar\": \"علا\",\n            \"short_name_en\": \"\",\n            \"mother_name_ar\": \"\",\n            \"mother_name_en\": \"\"\n        },\n        \"nationalities\": [\n            {\n                \"id_number\": 9441011298,\n                \"nationality\": \"JO\"\n            }\n        ],\n        \"parties\": {\n            \"is_searchable\": \"y\",\n            \"is_deleted\": \"n\",\n            \"party_type\": \"AH\"\n        },\n        \"parties_country\": {\n            \"date_of_birth\": \"\",\n            \"country_of_origin\": \"\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "{{dev_ip}}/phonotics/compare/",
+							"host": [
+								"{{dev_ip}}"
+							],
+							"path": [
+								"phonotics",
+								"compare",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"parameters\": {\r\n        \"party_type\": \"\",\r\n        \"party_id\": \"\",\r\n        \"role\": \"AH\",\r\n        \"sequence\": 1,\r\n        \"source_country\": \"JO\",\r\n        \"organization\": \"AB\",\r\n        \"size\": 10,\r\n        \"pre_processing\": true,\r\n        \"_source\": [],\r\n        \"_sort\": false,\r\n        \"party_id_not_in\": []\r\n    },\r\n    \"object\": {\r\n        \"names\": {\r\n            \"first_name_ar\": \"محمد\",\r\n            \"first_name_en\": \"FUAD\",\r\n            \"full_name_ar\": \"\",\r\n            \"full_name_en\": \"\",\r\n            \"last_name_ar\": \"\",\r\n            \"last_name_en\": \"\",\r\n            \"second_name_ar\": \"\",\r\n            \"second_name_en\": \"\",\r\n            \"third_name_ar\": \"\",\r\n            \"third_name_en\": \"\",\r\n            \"short_name_ar\": \"\",\r\n            \"short_name_en\": \"\",\r\n            \"mother_name_ar\": \"\",\r\n            \"mother_name_en\": \"\"\r\n            \r\n        },\r\n        \"nationalities\": [\r\n            {\r\n                \"nationality\": \"JO\",\r\n                \"passport_number\": \"\",\r\n                \"id_number\": \"\" ,\r\n                \"naional_number\":  \"\"\r\n            }\r\n        ],\r\n        \"parties_country\": {\r\n            \"date_of_birth\": \"\",\r\n            \"country_of_origin\": \"\",\r\n            \"country_of_incoporation\": \"\",\r\n            \"place_of_birth\":\"\"\r\n        }\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "{{local_ip}}/phonotics/search/",
+							"host": [
+								"{{local_ip}}"
+							],
+							"path": [
+								"phonotics",
+								"search",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Hello Phonetics App",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{local_ip}}/phonetics/",
+							"host": [
+								"{{local_ip}}"
+							],
+							"path": [
+								"phonetics",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MD5 Test",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"ID_Number\": 9571024449,\n\"Naional_Number\": 9571024449,\n\"Nationality\": \"\",\n\"Organization\": \"AB\",\n\"Role\": \"AH\",\n\"Sequence\": \"\",\n\"Source_country\": \"JOR\"\n}"
+						},
+						"url": {
+							"raw": "{{local_ip}}/phonetics/md5/",
+							"host": [
+								"{{local_ip}}"
+							],
+							"path": [
+								"phonetics",
+								"md5",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update",
+			"item": [
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Init-Country",
+								"type": "text",
+								"value": "{{init_country}}"
+							},
+							{
+								"key": "Channel-Identifier",
+								"type": "text",
+								"value": "{{channel_identifier}}"
+							},
+							{
+								"key": "Unique-Reference",
+								"type": "text",
+								"value": "{{unique_reference}}"
+							},
+							{
+								"key": "Time-Stamp",
+								"type": "text",
+								"value": "{{time_stamp}}"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{ip}}/phonotics/delete/4456",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"phonotics",
+								"delete",
+								"4456"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"parameters\":{ \n\t\t\n\t    \"is_searchable\": \"y\",\n\t    \"is_deleted\": \"n\",\n\t    \"party_id\": \"12345667\",\n\t    \"party_type\": \"AH\",\n\t    \"organization\": \"AB\",\n\t    \"role\": \"AH\",\n\t    \"source_country\": \"JO\",\n\t    \"sequence\":\"1\",\n\t    \"size\":10,\n\t\t\"pre_processing\":true,\n\t\t\"_source\":null,\n\t\t\"_sort\":false,\n\t\t\"party_id_not_in\":[]\n\t\t\t\t\n\t},\n\t\"object\":{\n\t\t\n\t    \"names\": {\n\t\t            \"first_name_ar\": \"\",\n\t                \"first_name_en\": null,\n\t                \"full_name_ar\": \"test test\",\n\t                \"full_name_en\": \"\",\n\t                \"last_name_ar\": \"\",\n\t                \"last_name_en\": \"\",\n\t                \"second_name_ar\": \"\",\n\t                \"second_name_en\": \"\",\n\t                \"third_name_ar\": \"\",\n\t                \"third_name_en\": \"\"\n\t            },\n\t\n\t    \"nationalities\": [\n\t         {\n\t            \"id_number\": \"9571024449\",\n\t            \"naional_number\": \"9571024449\",\n\t            \"nationality\":\"JO\"\n\t\n\t        },\n\t        {\n\t            \"id_number\": \"9571024449\",\n\t            \"naional_number\": \"9571024449\",\n\t            \"nationality\":\"SY\"\n\t        }\n\t        \n\t        ],\n\t        \n\t    \"parties_country\": {\n\t                    \"date_of_birth\":\"\",\n\t                    \"country_of_origin\":\"\",\n\t                    \"country_of_incoporation\":\"\"\n\t                }\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{local_ip}}/phonotics/add/",
+							"host": [
+								"{{local_ip}}"
+							],
+							"path": [
+								"phonotics",
+								"add",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "vvvvvv",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"parameters\":{ \n\t\t\n\t    \"is_searchable\": \"y\",\n\t    \"is_deleted\": \"n\",\n\t    \"party_type\": \"AH\",\n\t    \"organization\": \"AB\",\n\t    \"role\": \"AH\",\n\t    \"source_country\": \"JOR\",\n\t    \"sequence\":\"\"\n\t},\n\t\"object\":{\n\t\t\n\t    \"names\": {\n\t\t            \"first_name_ar\": \"يزيد\",\n\t                \"first_name_en\": \"MOHAMMAD\",\n\t                \"full_name_ar\": \"يزيد سامي محمود العنانزه\",\n\t                \"full_name_en\": \"MOHAMMAD ALI sharif ALMASREE\",\n\t                \"last_name_ar\": \"العنانزه\",\n\t                \"last_name_en\": \"ALMASREE\",\n\t                \"second_Name_ar\": \"سامي\",\n\t                \"second_name_en\": \"ALI\",\n\t                \"third_name_ar\": \"محمود\",\n\t                \"third_name_en\": \"sharif\",\n\t                \"short_name_ar\":\"\",\n                    \"short_name_en\":\"\",\n                    \"mather_name_ar\":\"pkhk\",\n                    \"mather_name_en\":\"\"\n\t            },\n\t\n\t    \"nationalities\": [\n\t         {\n\t            \"id_number\": 9571024449,\n\t            \"naional_number\": 9571024449,\n\t            \"nationality\":\"JO\"\n\t\n\t        },\n\t        {\n\t            \"id_number\": 9571024449,\n\t            \"naional_number\": 9571024449,\n\t            \"nationality\":\"SY\"\n\t        }\n\t        \n\t        ],\n\t        \n\t    \"parties_country\": {\n\t                    \"date_of_birth\":\"\",\n\t                    \"country_of_origin\":\"\",\n\t                    \"country_of_incoporation\":\"\"\n\t                }\n\t}\n}\n"
+						},
+						"url": {
+							"raw": "{{ip}}/phonotics/update/33335336",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"phonotics",
+								"update",
+								"33335336"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add fiel",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"index\":\"names\",\n\t\"path\":\"C:/Users/csh1/Desktop/new_names.csv\"\n}"
+						},
+						"url": {
+							"raw": "{{ip}}/phonotics/add_file/",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"phonotics",
+								"add_file",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Phyical Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Init-Country",
+								"type": "text",
+								"value": "{{init_country}}"
+							},
+							{
+								"key": "Channel-Identifier",
+								"type": "text",
+								"value": "{{channel_identifier}}"
+							},
+							{
+								"key": "Unique-Reference",
+								"type": "text",
+								"value": "{{unique_reference}}"
+							},
+							{
+								"key": "Time-Stamp",
+								"type": "text",
+								"value": "{{time_stamp}}"
+							},
+							{
+								"key": "x-access-token",
+								"type": "text",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{local_ip}}/phonotics/phyical_delete/C2021000002705",
+							"host": [
+								"{{local_ip}}"
+							],
+							"path": [
+								"phonotics",
+								"phyical_delete",
+								"C2021000002705"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "FeedBack",
+			"item": [
+				{
+					"name": "FeedBack",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{ip}}/setting/feedback",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"feedback"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FeedBack",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"word\":\"زيد\",\n\t\"similar_status\":true,\n\t\"similar_word\":\"زييد\",\n\t\"language\":\"ar\"\n}"
+						},
+						"url": {
+							"raw": "{{ip}}/setting/feedback",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"feedback"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete_feedback",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{ip}}/setting/feedback/333333",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"feedback",
+								"333333"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Feedback",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"name": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"word\":\"صقر\",\n\t\"similar_status\":false,\n\t\"similar_word\":\" صخر\",\n\t\"language\":\"ar\"\n}"
+						},
+						"url": {
+							"raw": "{{ip}}/setting/feedback/1MSsDnoBevTOybT_qHzF",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"feedback",
+								"1MSsDnoBevTOybT_qHzF"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "pre_processing",
+			"item": [
+				{
+					"name": "pre_processing",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{ip}}/setting/pre_processing",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"pre_processing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add pre_processing ",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"character\": \"ال\",\n    \"language\": \"ar\",\n    \"replae_to\": \" \"\n}\n"
+						},
+						"url": {
+							"raw": "{{ip}}/setting/pre_processing",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"pre_processing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "pre_processing",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{ip}}/setting/pre_processing/zTpG5XoB1EWTFAeas0IZ",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"pre_processing",
+								"zTpG5XoB1EWTFAeas0IZ"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "pre_processing",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"character\": \"ال\",\n    \"language\": \"ar\",\n    \"replae_to\": \" \"\n}\n"
+						},
+						"url": {
+							"raw": "{{ip}}/setting/pre_processing/dThpVHoBevTOybT_bI02",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"pre_processing",
+								"dThpVHoBevTOybT_bI02"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "pre_processing Copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{ip}}/setting/pre_processing",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"pre_processing"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "LOG",
+			"item": [
+				{
+					"name": "sammary",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{ip}}/log/get_sammary",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"log",
+								"get_sammary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Log",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{ip}}/log",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"log"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "index_settings",
+			"item": [
+				{
+					"name": "index_settings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{ip}}/setting/index_settings",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"index_settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update  index_settings",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n        \"Id\": \"pyU8iHoB1EWTFAeaW_ZF\",\n        \"data_type\": \"str\",\n        \"field\": \"MotherName_en\",\n        \"global_weight\": 0,\n        \"index\": \"names\",\n        \"keys\": \"FALSE\",\n        \"language\": \"en\",\n        \"local_weight\": 0,\n        \"pre_processing\": \"TRUE\",\n        \"search_type\": \"phonetics\",\n        \"weight_calculation\": \"TRUE\"\n    }\n"
+						},
+						"url": {
+							"raw": "{{ip}}/setting/index_settings/pyU8iHoB1EWTFAeaW_ZF",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"index_settings",
+								"pyU8iHoB1EWTFAeaW_ZF"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add index_settings",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data_type\": \"str\",\n    \"field\": \"MotherName_en\",\n    \"global_weight\": 0,\n    \"index\": \"names\",\n    \"keys\": \"FALSE\",\n    \"language\": \"en\",\n    \"local_weight\": 0,\n    \"pre_processing\": \"TRUE\",\n    \"search_type\": \"phonetics\",\n    \"weight_calculation\": \"TRUE\"\n}"
+						},
+						"url": {
+							"raw": "{{ip}}/setting/index_settings/",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"index_settings",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete index_settings",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Init-Country",
+								"value": "{{init_country}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel-Identifier",
+								"value": "{{channel_identifier}}",
+								"type": "text"
+							},
+							{
+								"key": "Unique-Reference",
+								"value": "{{unique_reference}}",
+								"type": "text"
+							},
+							{
+								"key": "Time-Stamp",
+								"value": "{{time_stamp}}",
+								"type": "text"
+							},
+							{
+								"key": "x-access-token",
+								"value": "{{token_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{ip}}/setting/index_settings/XSVseHoB1EWTFAea4iVt",
+							"host": [
+								"{{ip}}"
+							],
+							"path": [
+								"setting",
+								"index_settings",
+								"XSVseHoB1EWTFAea4iVt"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "1e54436f-92e5-4d0d-ac02-cd0f9dcff000",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "85e41dcb-da31-401f-b029-677ba84362a3",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "8c7cf82c-6066-4694-add7-77dae20d4e74",
+			"key": "init_country",
+			"value": "JO",
+			"type": "string"
+		},
+		{
+			"id": "97ad96f4-4f6d-4d21-af5c-3453f1c0c9df",
+			"key": "channel_identifier",
+			"value": "channel_identifier",
+			"type": "string"
+		},
+		{
+			"id": "dc0ea23e-acbe-4bbe-82be-0a6cd715bced",
+			"key": "unique_reference",
+			"value": "unique_reference",
+			"type": "string"
+		},
+		{
+			"id": "fedf901c-c3e0-4553-bd48-4037df6791e1",
+			"key": "time_stamp",
+			"value": "time_stamp",
+			"type": "string"
+		},
+		{
+			"id": "2369d316-0cad-4270-8e2d-9bc8ce49bdd1",
+			"key": "ip",
+			"value": "http://10.101.15.30:8888",
+			"type": "string"
+		},
+		{
+			"id": "97a8b8ed-600c-41f9-9573-228346601599",
+			"key": "token",
+			"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwdWJsaWNfaWQiOiJjMjhiNGY2Ny01MWI2LTQxN2MtYWYwYy0zMGVjNTQzNjhjNjUiLCJleHAiOjE2MzI5MDgzODd9.vwBTEz2evrMRvGqzC9yCTjvmLZ_PzHzuloTMs0ynW88",
+			"type": "string"
+		},
+		{
+			"id": "289d07e7-a450-450f-ba4a-960eacc8ddd9",
+			"key": "token_admin",
+			"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwdWJsaWNfaWQiOiJjMjhiNGY2Ny01MWI2LTQxN2MtYWYwYy0zMGVjNTQzNjhjNjUiLCJleHAiOjE2MzI5MDgzODd9.vwBTEz2evrMRvGqzC9yCTjvmLZ_PzHzuloTMs0ynW88",
+			"type": "string"
+		},
+		{
+			"id": "3d45a2f5-8a97-48f0-b966-61cb9b89f458",
+			"key": "local_ip",
+			"value": "http://10.0.52.134:8888",
+			"type": "string"
+		},
+		{
+			"id": "fc53891c-6570-4c50-aef4-76883eb02d60",
+			"key": "dev_ip",
+			"value": "http://10.101.18.36:8888",
+			"type": "string"
+		},
+		{
+			"id": "584d9cc3-3afa-4641-b9d9-396497fb62fe",
+			"key": "test_ip",
+			"value": "http://10.101.15.30:8888",
+			"type": "string"
+		}
+	]
+}
