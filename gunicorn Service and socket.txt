@@ -1,0 +1,53 @@
+[root@MDM-MS01 phonetics]# vi /etc/systemd/system/gunicorn.socket
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn.sock
+# Our service won't need permissions for the socket, since it
+# inherits the file descriptor by socket activation
+# only the nginx daemon will need access to the socket
+SocketUser=gitlab-runner
+# Optionally restrict the socket permissions even more.
+# SocketMode=600
+
+[Install]
+WantedBy=sockets.target
+
+
+-------------------------------------------------------------------
+
+
+[root@MDM-MS01 phonetics]# cat /etc/systemd/system/gunicorn.service
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=gitlab-runner
+Group=gitlab-runner
+WorkingDirectory=/MDM/phonetics
+
+ExecStart=/MDM/phonetics/venv/bin/gunicorn wsgi:app -c gunicorn.conf.py
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target
+
+
+-------------------------------------------------------------------------
+
+systemctl enable gunicorn.socket
+
+systemctl enable gunicorn.service
+
+systemctl start gunicorn.socket
+
+systemctl start gunicorn.service
+
+systemctl status gunicorn.socket
+
+systemctl status gunicorn.service
