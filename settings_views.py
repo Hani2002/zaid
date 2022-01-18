@@ -45,7 +45,9 @@ def hello():
 @settings_app.route('/setting/feedback', methods=['POST'])
 @token_required
 def add_feedback (current_user):
-    try : 
+
+    try :
+
         body_keys = ["word","similar_status","similar_word","language"] 
         required_headers_keys = ['Init-Country','Channel-Identifier','Unique-Reference','Time-Stamp']
         # Get Data
@@ -55,7 +57,6 @@ def add_feedback (current_user):
         for key in body_keys : 
             if data[key] == '' : 
                 return make_response({"status":False , "msg":"Please donot sned  data empty"} , 400 )
-
 
         # Validate keys : 
         for key in body_keys : 
@@ -74,7 +75,8 @@ def add_feedback (current_user):
         obj_Operations = Operations()
         result , status = obj_Operations.add_row( index="feedback" , _object = data)
         obj_Operations.close_connection()
-        return make_response(jsonify(result), status) 
+        return make_response(jsonify(result), status)
+        
     except : 
         results , status = { "status":False,"msg":"error in add feedback endpoint."} , 400
         return make_response(jsonify(results), status )

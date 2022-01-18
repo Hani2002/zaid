@@ -25,14 +25,14 @@ second_name_ar,names,str,ar,2.5,2.5,phonetics,TRUE,FALSE,TRUE
 third_name_ar,names,str,ar,2.5,2.5,phonetics,TRUE,FALSE,TRUE
 last_name_ar,names,str,ar,10,10,phonetics,TRUE,FALSE,TRUE
 full_name_ar,names,str,ar,5,5,phonetics,TRUE,FALSE,TRUE
-short_name_ar,names,str,ar,5,5,phonetics,TRUE,FALSE,TRUE
+short_name_ar,names,str,ar,0,0,phonetics,TRUE,FALSE,TRUE
 mother_name_ar,names,str,ar,5,5,phonetics,TRUE,FALSE,TRUE
 first_name_en,names,str,en,10,10,phonetics,TRUE,FALSE,TRUE
 second_name_en,names,str,en,2.5,2.5,phonetics,TRUE,FALSE,TRUE
 third_name_en,names,str,en,2.5,2.5,phonetics,TRUE,FALSE,TRUE
 last_name_en,names,str,en,10,10,phonetics,TRUE,FALSE,TRUE
 full_name_en,names,str,en,5,5,phonetics,TRUE,FALSE,TRUE
-short_name_en,names,str,en,5,5,phonetics,TRUE,FALSE,TRUE
+short_name_en,names,str,en,0,0,phonetics,TRUE,FALSE,TRUE
 mother_name_en,names,str,en,5,5,phonetics,TRUE,FALSE,TRUE
 party_id,parties_country,str,en,0,0,deterministic,FALSE,TRUE,FALSE
 role,parties_country,str,en,0,0,deterministic,FALSE,TRUE,FALSE

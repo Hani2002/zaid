@@ -5,7 +5,8 @@ Created on Thu Dec 31 13:51:06 2020
 
 @author: appspro
 """
-import datetime 
+import datetime
+import re 
 from elasticsearch import Elasticsearch
 import hashlib
 import json
@@ -164,7 +165,6 @@ class Operations () :
     def check_keys_is_found (self,index , keys ) :  
         query =  self.generate_query ( index = index  ,fields = keys )
         result_search  = result = self.es.search( index= index , body = query )['hits']['hits']
-
         if result_search == [] :
             return False 
         else : 
@@ -223,9 +223,10 @@ class Operations () :
                 
                 for key , value in _object.items() : 
 
-                    if value == "" or value == None or key not in ["first_name_ar","first_name_en","last_name_ar","last_name_en","full_name_en","full_name_ar"] : 
+                    if value == "" or value == None or key not in ["first_name_ar","first_name_en","last_name_ar","last_name_en","full_name_ar","full_name_en"] : 
                         continue 
 
+                    
                     key_info = settings[settings['field']== key]
                     if key_info.iloc[0,:]["search_type"] == "phonetics" :
 
@@ -238,14 +239,15 @@ class Operations () :
                             key_dict = { "query": value,"fuzziness": "AUTO", "operator": "and" }
                             match['match'][key] = key_dict
 
-                            if key.lower() in ['full_name_ar','full_name_en'] and not (
-                                                                                    _object['first_name_ar'] not in [None , "" , ''] or 
-                                                                                    _object['first_name_en'] not in [None , "" ,''] or 
-                                                                                    _object['last_name_en'] not in [None , "", ''] or
-                                                                                    _object['last_name_ar'] not in [None , "", '']  ): 
+
+                            if key.lower() in ['full_name_ar','full_name_en']  and  not (
+                                                                                     _object['first_name_ar'] not  in [None , "" , ''] or 
+                                                                                     _object['first_name_en'] not in [None , "" ,''] or 
+                                                                                     _object['last_name_en']  not in [None , "", ''] or
+                                                                                     _object['last_name_ar']  not in [None , "", '']  ): 
                                
                                 phonetics_should_list.append(match)
-                            else: 
+                            elif key.lower() not in ['full_name_ar','full_name_en'] : 
                                 phonetics_must_list.append(match)
 
                         else: 
@@ -449,7 +451,7 @@ class Operations () :
                     obj_data[index]= dict()
 
             if obj_data !=dict() :
-                print(  "Party ID : ",obj_keys['party_id'])
+                print(obj_keys)
                 result_with_weight = self.obj_phonetics.search_similarity_for_two_object(
                                                             obj_search = source_obj['object'] ,  
                                                             obj_result = obj_data , 
@@ -506,14 +508,14 @@ class Operations () :
         checksum = hashlib.md5(word.encode()).hexdigest() 
         return checksum
 
-    def checksum(self , party_id  ) :
+    def checksum(self , primary_keys  ) :
         
         data = dict()
-        json_data  = dict()
-        # Parties 
+
+        # Get Data form Parties Tabels 
         index ="parties" 
         query = dict()
-        query["query"] ={"match": {"party_id": {"query": party_id , "operator": "and" } } } 
+        query["query"] ={"match": {"party_id": {"query": primary_keys['party_id'] , "operator": "and" } } } 
         party_id_info = self.es.search(index=index , body=query)
         party_id_info = party_id_info["hits"]["hits"]
 
@@ -524,11 +526,11 @@ class Operations () :
         else : 
             obj_checksum = self.md5_hash(party_id_info[0]["_source"])  
             data = party_id_info[0]["_source"]
-            #data["parties"]= {"object": party_id_info[0]["_source"] , "checksum" : obj_checksum  }
 
-        # Nationalities 
+        # Get Data from Nationalities Tabels 
         index ="nationalities"
         checksums =""
+        query = self.generate_query_for_search (index =index ,_object=None,parameters=primary_keys ,size=None)
         nationalities_info = self.es.search(index=index , body=query)["hits"]["hits"]
         if  nationalities_info == [] :
             data["nationalities"]= { }  
@@ -539,9 +541,9 @@ class Operations () :
                 nationalities_list.append({"object": obj["_source"] , "checksum" : self.md5_hash(obj["_source"])  })
                 checksums = checksums + obj_checksum
             data["nationalities"]= {"objects":nationalities_list , "checksum":self.md5_hash(checksums) }
-
         # Parties Country
         index= "parties_country"
+        query = self.generate_query_for_search (index =index ,_object=None,parameters=primary_keys ,size=None)
         party_id_info = self.es.search(index=index , body=query)
         party_id_info = party_id_info["hits"]["hits"]
         if  party_id_info == [] :
@@ -557,10 +559,10 @@ class Operations () :
 
             over_all_checksum = self.md5_hash(checksums) 
             data["parties_country"]= {"objects":parties_country_list , "checksum":over_all_checksum }
-
         # Names
         index= "names"
         checksums =""
+        query = self.generate_query_for_search (index =index ,_object=None,parameters=primary_keys ,size=None)
         party_id_info = self.es.search(index=index , body=query)
         party_id_info = party_id_info["hits"]["hits"]
         if  party_id_info == [] :
@@ -636,9 +638,16 @@ class Operations () :
         patries_data['is_searchable']= objects['is_searchable']
         patries_data['is_deleted']= objects['is_deleted']
         
+        keys=dict()
+        keys['party_id'] = objects['party_id']
+        keys['organization'] = objects['organization']
+        keys['role'] = objects['role']
+        keys['source_country'] = objects['source_country']
+        keys['sequence'] = objects['sequence']
+
         
-        if self.check_party_id_is_found( party_id = objects['party_id'],index = index ) != False :
-            res = {"status":False,"msg": "Party ID is exist" }
+        if self.check_keys_is_found(index="names" , keys= keys ) :
+            res = {"status":False,"msg": "keys is exist" }
             return res , 400 
  
         ## Names 
@@ -741,15 +750,9 @@ class Operations () :
         keys['source_country'] = objects['source_country']
         keys['sequence'] = objects['sequence']
 
-        # if self.check_party_id_is_found( party_id = objects['party_id'],index = index ) == False :
-        #     self.Add(objects)
-        #     res = {'status':True,  "msg": "Objects added successfully" }
-        #     return res , 200 
-
         if not self.check_keys_is_found(index="names" , keys= keys ) :
-            self.Add(objects)
-            res = {'status':True,  "msg": "Objects added successfully" }
-            return res , 200 
+            res , status  = self.Add(objects)
+            return res , status 
 
         ## Names 
         index = "names"
@@ -854,16 +857,25 @@ class Operations () :
         res = {'status':True,"msg": "Objects Updated successfully." }
         return res , 200 
 
-    def Delete (self,party_id, index , phyicaly = False ):
+    def Delete (self,party_id, index):
+        # Check party id found in table parties 
         result_search =  self.check_party_id_is_found (party_id = party_id , index= index , query = False)
         if result_search == False: 
             return ({'status':False,'error': 'Party id is not found.'} , 404)
-        elastic_id =result_search[0][0]['_id']
-
-        if not phyicaly : 
-            result = self.es.update( index=index ,doc_type='_doc', id=elastic_id, body={ "doc":{"is_deleted":"y"} } )    
-            res = { 'status':True, 'msg':'object is flag deleted .'}
-        else : 
-            result , status = self.delete_row(index , elastic_id )
-            res = { 'status':True, 'msg': result}
+        # get elastic id from object 
+        elastic_id = result_search[0][0]['_id']
+        # Update parties tabel 
+        self.es.update( index=index ,doc_type='_doc', id=elastic_id, body={ "doc":{"is_deleted":"y"} } )
+        # pysical delete for tabels (namse , nationalities , parties_country )
+        for index in ["names","nationalities","parties_country"] :
+            # Check party id found
+            result_search =  self.check_party_id_is_found (party_id = party_id , index= index , query = False) 
+            if result_search != False:
+                for obj in result_search[0]:
+                    # Get elastic id  
+                    elastic_id =obj['_id']
+                    # Delete row 
+                    self.delete_row(index , elastic_id )
+        # Return result 
+        res = { 'status':True, 'msg':'object is flag deleted .'}
         return (res , 200) 

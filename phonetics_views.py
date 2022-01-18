@@ -38,30 +38,43 @@ def token_required(f):
         return  f(current_user, *args, **kwargs)
     return decorated 
 
-@phonetics.route('/phonetics/checksum/<party_id>', methods=['GET'])
+@phonetics.route('/phonetics/checksum', methods=['GET'])
 @token_required
-def checksum(current_user,party_id) :
+def checksum(current_user) :
     try : 
-        required_headers_keys = ['Init-Country','Channel-Identifier','Unique-Reference','Time-Stamp']
-        headers = request.headers
-        for key in required_headers_keys : 
-            if key not in headers.keys() : 
-                return  make_response({"headers":"{} key is requierd.".format(key)},400)
+        # Get input from request 
+        data = request.get_json()
+
+        obj_Operations = Operations() 
+        # Validate Data
+        obj_validations  = validations(settings_file=obj_Operations.settings_file)
+        headers = obj_validations.validate_keys(error_name='headers', data = request.headers)
+        data = obj_validations.validate_keys( error_name = 'primary_keys',data = data)
+
+        ## Ceack errors
+        if len (obj_validations.errors) > 0 : 
+            obj_Operations.close_connection()
+            return  make_response(jsonify({"errors":obj_validations.errors}), 400) 
+
+        # Get Data form database
         try :
-            obj_Operations = Operations()
-            results , status = obj_Operations.checksum( party_id )
+            results , status = obj_Operations.checksum(data)
         except :
             results , status = { "status":False,"msg":"error whean get checksum Data."} , 400
+
+        # Add to logs
         try : 
             endpoint= "/phonetics/checksum/<party_id>"
-            obj_Operations.add_to_log (headers = headers , status = status , operation=endpoint , public_id=current_user['public_id'],input=str(party_id) , output= json.dumps(results)) 
-            obj_Operations.close_connection()
+            obj_Operations.add_to_log (headers = headers , status = status , operation=endpoint , public_id=current_user['public_id'],input=json.dumps(data) , output= json.dumps(results)) 
         except :
             results, status = { "status":False,"msg":"error whean add data to log."} , 400
     except : 
         results , status = { "status":False,"msg":"error in checksum endpoint."} , 400
+    # close commection 
+    obj_Operations.close_connection()
+    # Return Response 
     return make_response(jsonify(results), status )
-
+    
 @phonetics.route('/phonetics/md5/', methods=['POST'])
 def md5_test () :
     import json
@@ -79,130 +92,119 @@ def md5_test () :
 @phonetics.route('/phonotics/add/', methods=['POST'])
 @token_required
 def Add(current_user):
-    #try : 
-
-        required_keys = ["parameters" , "object" ]
-        required_parameters_keys = ["is_searchable","is_deleted","party_id","party_type","organization","role","source_country","sequence"] 
-        required_object_keys = ["names","nationalities","parties_country"]
-        required_headers_keys = ['Init-Country','Channel-Identifier','Unique-Reference','Time-Stamp']
+    try : 
         # Get Data
         data = request.get_json()
-        headers = request.headers
-        # Validate keys : 
+        obj_Operations = Operations() 
 
-        ### Input request 
-        for key in required_headers_keys : 
-            if key not in headers.keys() : 
-                return {"headers":"{} key is requierd.".format(key)}
+        # Validate Data
+        obj_validations  = validations(settings_file=obj_Operations.settings_file)
+        obj_validations.validate_keys( error_name = 'json_structure',data = data , keys= ["parameters" , "object" ] )
 
-        for key in required_keys : 
-            if key not in data.keys() : 
-                return {"Input":"{} key is requierd.".format(key)}
+        ## Ceack errors
+        if len (obj_validations.errors) > 0 : 
+            obj_Operations.close_connection()
+            return  make_response(jsonify({"errors":obj_validations.errors}), 400) 
 
-        for key in required_parameters_keys : 
-            if key not in data['parameters'].keys() :
-                return {"parameters":"{} key is requierd.".format(key)}
+        headers = obj_validations.validate_keys(error_name='headers', data = request.headers)
+        obj_validations.validate_keys( error_name = 'parameters',data = data['parameters'])
+        obj_validations.validate_keys(error_name ='object' , data = data['object'] )
 
-        for key in required_object_keys : 
-            if key not in data['object'].keys() :
-                return {"object":"{} key is requierd.".format(key)}
+        ## Ceack errors
+        if len (obj_validations.errors) > 0 :
+            obj_Operations.close_connection() 
+            return  make_response(jsonify({"errors":obj_validations.errors}), 400) 
 
         data['parameters'].update(data['object'])
         data = data['parameters']
 
-        if data['names']['full_name_en'] == "":
+        # Check if full name found or not 
+        if data['names']['first_name_en'] not in [None, ""] and data['names']['last_name_en'] not in [None, ""]:#data['names']['full_name_en'] in [ "" , None ]:
+            # Create Full Name english form (FN , SN , TN , LN)
             full = list()
             for  value in [data['names']['first_name_en'], data['names']['second_name_en'], data['names']['third_name_en'], data['names']['last_name_en']] : 
                 if value not in [None , ""]:
                     full.append(value)
-
             data['names']['full_name_en'] = " ".join(full)
-
-        if data['names']['full_name_ar'] == "":
+        if data['names']['first_name_ar'] not in [None, ""] and data['names']['last_name_ar'] not in [None, ""]:#data['names']['full_name_ar'] in ["", None ]:
+            # Create Full Name arabic form (FN , SN , TN , LN)
             full = list()
             for  value in [data['names']['first_name_ar'], data['names']['second_name_ar'], data['names']['third_name_ar'], data['names']['last_name_ar']] : 
                 if value not in [None , ""]:
                     full.append(value)
-
             data['names']['full_name_ar'] = " ".join(full)
 
         for key in data['names'].keys() : 
-
             if data['names'][key] not in [None , [] , "" ]:
                 data['names'][key] = data['names'][key].strip().lower()
                 data['names'][key] = re.sub(r'\s+', ' ', data['names'][key])
             
+        # Add Data to database 
         try : 
-            # Add Data 
-            obj_Operations = Operations()
             result , status = obj_Operations.Add(data)
         except : 
-            status = 400
-            result = {"status":False,"msg":"error when insert data in elasticsearch. "}
-
+            result , status = {"status":False,"msg":"error when insert data in elasticsearch. "} , 400
+        
+        # Add to log 
         try : 
             endpoint= "/phonotics/add/"
             obj_Operations.add_to_log (headers = headers , status = status , operation=endpoint , public_id=current_user['public_id'],input=json.dumps(data),output=json.dumps(result) ) 
-            obj_Operations.close_connection()
         except : 
-            results , status = { "status":False,"msg":"error whean add data to log ."} , 400
-    #except : 
-    #    result , status = { "status":False,"msg":"error in add endpoint."} , 400
-        return make_response(jsonify(result), status) 
-
+            result , status = { "status":False,"msg":"error whean add data to log ."} , 400
+    except : 
+        result , status = { "status":False,"msg":"error in add endpoint."} , 400
+    
+    # close commection 
+    obj_Operations.close_connection()
+    # Return Response 
+    return make_response(jsonify(result), status)   
 
 @phonetics.route('/phonotics/update/<party_id>', methods=['PUT'])
 @token_required
 def Update(current_user , party_id):
-    #try :
+    try :
 
-        required_keys = ["parameters" , "object" ]
-        required_parameters_keys = ["is_searchable","is_deleted","party_type","organization","role","source_country","sequence"] 
-        required_object_keys = ["names","nationalities","parties_country"]
-        required_headers_keys = ['Init-Country','Channel-Identifier','Unique-Reference','Time-Stamp']
         # Get Data
         data = request.get_json()
-        headers = request.headers
-        # Validate keys : 
+        obj_Operations = Operations() 
 
-        ### Input request 
-        for key in required_headers_keys : 
-            if key not in headers.keys() : 
-                return {"headers":"{} key is requierd.".format(key)}
+        # Validate Data
+        obj_validations  = validations(settings_file=obj_Operations.settings_file)
+        obj_validations.validate_keys( error_name = 'json_structure',data = data , keys= ["parameters" , "object" ] )
 
-        for key in required_keys : 
-            if key not in data.keys() : 
-                return {"Input":"{} key is requierd.".format(key)}
+        ## Ceack errors
+        if len (obj_validations.errors) > 0 : 
+            obj_Operations.close_connection()
+            return  make_response(jsonify({"errors":obj_validations.errors}), 400) 
 
-        for key in required_parameters_keys : 
-            if key not in data['parameters'].keys() :
-                return {"parameters":"{} key is requierd.".format(key)}
+        headers = obj_validations.validate_keys(error_name='headers', data = request.headers)
+        obj_validations.validate_keys( error_name = 'parameters',data = data['parameters'] , keys=["is_searchable","is_deleted","party_type","organization","role","source_country","sequence"])
+        obj_validations.validate_keys(error_name ='object' , data = data['object'] )
 
-        for key in required_object_keys : 
-            if key not in data['object'].keys() :
-                return {"object":"{} key is requierd.".format(key)}
+        ## Ceack errors
+        if len (obj_validations.errors) > 0 : 
+            obj_Operations.close_connection()
+            return  make_response(jsonify({"errors":obj_validations.errors}), 400)
 
         data['parameters'].update(data['object'])
         data = data['parameters']
 
-        if data['names']['full_name_en'] == "":
+         # Check if full name found or not 
+        if data['names']['first_name_en'] not in [None, ""] and data['names']['last_name_en'] not in [None, ""]:#data['names']['full_name_en'] in [None, ""]:
             full = list()
-            for  value in [data['names']['first_name_en'], data['names']['second_name_en'], data['names']['third_name_en'], data['names']['last_name_en']] : 
-                if value not in [None , ""]:
+            for value in [data['names']['first_name_en'], data['names']['second_name_en'], data['names']['third_name_en'], data['names']['last_name_en']] :
+                if value not in [None, ""]:
                     full.append(value)
 
             data['names']['full_name_en'] = " ".join(full)
 
-        if data['names']['full_name_ar'] == "":
+        if data['names']['first_name_ar'] not in [None, ""] and data['names']['last_name_ar'] not in [None, ""]:#data['names']['full_name_ar'] in ["" , None ]:
             full = list()
             for  value in [data['names']['first_name_ar'], data['names']['second_name_ar'], data['names']['third_name_ar'], data['names']['last_name_ar']] : 
                 if value not in [None , ""]:
                     full.append(value)
 
             data['names']['full_name_ar'] = " ".join(full)
-
-
-        
 
         for key in data['names'].keys() : 
             if data['names'][key] not in [None , [] , "" ,{}]:
@@ -210,202 +212,168 @@ def Update(current_user , party_id):
                 data['names'][key] = re.sub(r'\s+', ' ', data['names'][key])
 
         data['party_id'] = party_id
-        #try : 
-            # Update Data 
-        obj_Operations = Operations()
-        result , status = obj_Operations.Update(data)
-        #except : 
-        #    result , status = {"status":False , "msg":"error when update data."} , 400
 
+        # Update Data 
+        try : 
+            result , status = obj_Operations.Update(data)
+        except : 
+            result , status = {"status":False , "msg":"error when update data."} , 400
+
+        # Add to log 
         try :
             endpoint= "/phonotics/update/<party_id>"
             obj_Operations.add_to_log (headers = headers , status = status , operation=endpoint , public_id=current_user['public_id'],input=json.dumps(data),output=json.dumps(result)) 
             obj_Operations.close_connection()
         except :
             result, status = { "status":False,"msg":"error whean update data to log."} , 400
-    #except : 
-    #    result , status = { "status":False,"msg":"error in update endpoint."} , 400
+    except : 
+        result , status = { "status":False,"msg":"error in update endpoint."} , 400
 
-        return make_response(jsonify(result), status) 
+    # close connection
+    obj_Operations.close_connection()
+    # return response 
+    return make_response(jsonify(result), status) 
 
 @phonetics.route('/phonotics/delete/<party_id>', methods=['DELETE'])
 @token_required
 def Delete(current_user , party_id):
     try : 
-        required_headers_keys = ['Init-Country','Channel-Identifier','Unique-Reference','Time-Stamp']
-        # Get Data
-        data = request.get_json()
-        headers = request.headers
-        # Validate keys : 
-        for key in required_headers_keys : 
-            if key not in headers.keys() : 
-                return {"headers":"{} key is requierd.".format(key)}
+        obj_Operations = Operations() 
+        # Validate Data
+        obj_validations  = validations(settings_file=obj_Operations.settings_file)
+        headers = obj_validations.validate_keys(error_name='headers', data = request.headers)
+        ## Ceack errors
+        if len (obj_validations.errors) > 0 : 
+            obj_Operations.close_connection()
+            return  make_response(jsonify({"errors":obj_validations.errors}), 400)
+
+        # Delete object 
         try : 
-            # Delete object 
-            obj_Operations = Operations()
             result , status = obj_Operations.Delete(index="parties" , party_id=party_id )
         except:
             result , status = { "status":False,"msg":"error in Delete object."} , 400
+
+        # Add to log 
         try : 
             endpoint= "/phonotics/delete/<party_id>"
-            obj_Operations.add_to_log (headers=headers,status=status,operation=endpoint,public_id=current_user['public_id'],input=json.dumps(data),output=json.dumps(result)) 
-            obj_Operations.close_connection()
+            obj_Operations.add_to_log (headers=headers,status=status,operation=endpoint,public_id=current_user['public_id'],input=json.dumps({'party_id':party_id}),output=json.dumps(result)) 
         except:
             result , status = { "status":False,"msg":"error whean update data to log."} , 400
     except : 
         result , status = { "status":False,"msg":"error in Delete endpoint."} , 400
+    # Close Connection 
+    obj_Operations.close_connection()
+    # Resurn Responce 
     return make_response(jsonify(result), status )
-
-@phonetics.route('/phonotics/phyical_delete/<party_id>', methods=['DELETE'])
-@token_required
-def Phyical_Delete  (current_user , party_id ):
-    try : 
-        required_headers_keys = ['Init-Country','Channel-Identifier','Unique-Reference','Time-Stamp']
-        headers = request.headers
-        for key in required_headers_keys : 
-            if key not in headers.keys() : 
-                return {"headers":"{} key is requierd.".format(key)}
-        if not current_user['status'] : 
-            return make_response({"msg":'Only the administrator has the permission to Update.'}, 201) 
-        obj_Operations = Operations()
-        res_list = list()
-        for index in ['names','parties','parties_country','nationalities']:
-            result , status =  obj_Operations.Delete(index = index, party_id = party_id , phyicaly = True)
-            res_list.append({"index":index , "result":result })
-        obj_Operations.close_connection()
-    except :
-        result , status = { "status":False,"msg":"error in phyical delete endpoint."} , 400
-        return make_response(jsonify(result), status) 
-    return make_response(jsonify(res_list), 200) 
-
 
 
 
 @phonetics.route('/phonotics/search/', methods=['POST'])
 @token_required
 def Search(current_user):  
-    #try : 
-        required_parameters_keys = [
-            "party_type","party_id","role","sequence","source_country","organization","party_id_not_in","_source",
-            "pre_processing","size","_sort"
-        ]
-        required_object_keys = ["names","nationalities","parties_country"]
-        required_keys = ["parameters" , "object" ] 
-        required_headers_keys = ['Init-Country','Channel-Identifier','Unique-Reference','Time-Stamp']
-        
-        # Get Data and Validate Input request
+    try : 
+        # Get Data
         data = request.get_json()
-        headers = request.headers
-        
-        ### Input request  
-        for key in required_keys : 
-            if key not in data.keys() : 
-                return {"Input":"{} key is requierd.".format(key)}
-
-        for key in required_parameters_keys : 
-            if key not in data['parameters'].keys() : 
-                return {"parameters":"{} key is requierd.".format(key)}
-
-        for key in required_object_keys : 
-            if key not in data['object'].keys() : 
-                return {"parameters":"{} key is requierd.".format(key)}
-
-        for key in required_headers_keys : 
-            if key not in headers.keys() : 
-                return {"headers":"{} key is requierd.".format(key)}
-
-        init_country = headers['Init-Country']
-        # Validate Data
         obj_Operations = Operations() 
-        
+
+        # Validate Data
         obj_validations  = validations(settings_file=obj_Operations.settings_file)
-        ### Body 
-        _source =obj_validations.validate__source( data['parameters']['_source'])
-        pre_processing = obj_validations.validate_pre_processing(data['parameters']['pre_processing'])
-        size = obj_validations.validate_size(data['parameters']['size'])
-        _sort = obj_validations.validate__sort(data['parameters']['_sort'])
-        del data['parameters']['_source']
-        del data['parameters']['size']
-        del data['parameters']['_sort']
-        del data['parameters']['pre_processing']
-        # Ceack errors
+        obj_validations.validate_keys( error_name = 'json_structure',data = data , keys= ["parameters" , "object" ] )
+
+        ## Ceack errors
         if len (obj_validations.errors) > 0 : 
+            obj_Operations.close_connection()
             return  make_response(jsonify({"errors":obj_validations.errors}), 400) 
 
-        if _source != None and _source !=[] : 
-            for key in ["party_id","role","sequence","source_country","organization"] :
-                if key not in _source : 
-                    _source.append(key)
-     #   try : 
-        # Get Result
+        headers = obj_validations.validate_keys(error_name='headers', data = request.headers)
+        obj_validations.validate_keys( error_name = 'parameters',data = data['parameters'] , 
+        keys=["party_type","party_id","role","sequence","source_country","organization","party_id_not_in","pre_processing","size"])
+
+        obj_validations.validate_keys(error_name ='object' , data = data['object'] )
+        pre_processing = obj_validations.validate_pre_processing(data['parameters']['pre_processing'])
+        size = obj_validations.validate_size(data['parameters']['size'])
+        ## Ceack errors
+        if len (obj_validations.errors) > 0 : 
+            obj_Operations.close_connection()
+            return  make_response(jsonify({"errors":obj_validations.errors}), 400)
         
-        result,status = obj_Operations.Search( 
-                                    _object=data['object'], 
-                                    parameters=data['parameters'],
-                                    size=size, 
-                                    _source=_source, 
-                                    _sort=_sort, 
-                                    pre_processing=pre_processing, 
-                                    init_country=init_country,
-                                    return_query=False
-                                    )
-      #  except : 
-       #     result , status = { "status":False,"msg":"error in Search object."} , 400
+        del data['parameters']['size']
+        del data['parameters']['pre_processing']
+
+        # Get Result
+        try : 
+            
+            result,status = obj_Operations.Search( 
+                                        _object=data['object'], 
+                                        parameters=data['parameters'],
+                                        size=size, 
+                                        pre_processing=pre_processing, 
+                                        init_country=headers['Init-Country'],
+                                        return_query=False
+                                        )
+        except : 
+            result , status = { "status":False,"msg":"error in Search object."} , 400
+
+        # Add to log
         try :
-            # Add to log 
             endpoint= "/phonotics/search/"
             obj_Operations.add_to_log (headers=headers,status=status,operation=endpoint,public_id=current_user['public_id'],input=json.dumps(data),output=json.dumps(result)) 
             obj_Operations.close_connection()
         except :
             result , status = { "status":False,"msg":"error whean update data to log."} , 400
-    #except:
-    #    result , status = { "status":False,"msg":"error in Search endpoint."} , 400
-        return make_response(jsonify(result),status)    
+    except:
+        result , status = { "status":False,"msg":"error in Search endpoint."} , 400
+    return make_response(jsonify(result),status)    
+
 
 @phonetics.route('/phonotics/compare/', methods=['POST'])
 @token_required
 def Compare(current_user) :
-    #try : 
-        required_parameters_keys = ["party_type","pre_processing"] 
-        required_keys = ["parameters","object_one","object_two"] 
-        required_headers_keys = ['Init-Country','Channel-Identifier','Unique-Reference','Time-Stamp']
+    try : 
         # Get Data
         data = request.get_json()
-        headers = request.headers
-        # Validate keys : 
-        for key in required_keys : 
-            if key not in data.keys() :
-                res =  {"required_keys":"{} key is requierd.".format(key)}
-                return make_response(jsonify(res), 400) 
+        obj_Operations = Operations() 
 
-        for key in required_parameters_keys : 
-            if key not in data['parameters'].keys() : 
-                res =  {"parameters":"{} key is requierd.".format(key)}
-                return make_response(jsonify(res), 400) 
+        # Validate Data
+        obj_validations  = validations(settings_file=obj_Operations.settings_file)
+        obj_validations.validate_keys( error_name = 'json_structure',data = data , keys= ["parameters" , "object_one","object_two" ] )
 
-        for key in required_headers_keys : 
-            if key not in headers.keys() : 
-                return {"headers":"{} key is requierd.".format(key)}
+        ## Ceack errors
+        if len (obj_validations.errors) > 0 : 
+            obj_Operations.close_connection()
+            return  make_response(jsonify({"errors":obj_validations.errors}), 400) 
+
+        headers = obj_validations.validate_keys(error_name='headers', data = request.headers)
+        obj_validations.validate_keys( error_name = 'parameters',data = data['parameters'],keys=["pre_processing","party_type"])
+        obj_validations.validate_keys(error_name ='object_one' , data = data['object_one'],keys=["names","nationalities","parties_country"])
+        obj_validations.validate_keys(error_name ='object_two' , data = data['object_two'],keys=["names","nationalities","parties_country"])
+        pre_processing = obj_validations.validate_pre_processing(data['parameters']['pre_processing'])
+        ## Ceack errors
+        if len (obj_validations.errors) > 0 : 
+            obj_Operations.close_connection()
+            return  make_response(jsonify({"errors":obj_validations.errors}), 400)
 
         ## Body
         party_type = data['parameters']['party_type']
         pre_processing=data['parameters']['pre_processing']
         object_one=data['object_one']
         object_two=data['object_two']
-        #try :
-            # Get Results
-        obj_Operations = Operations()
-        result,status = obj_Operations.compare( party_type=party_type, pre_processing=pre_processing, object_one=object_one, object_two=object_two )
-        #except :
-        #     result , status = { "status":False,"msg":"error when compare between two objects."} , 400
+
+        # Get Results
+        try :    
+            result,status = obj_Operations.compare( party_type=party_type, pre_processing=pre_processing, object_one=object_one, object_two=object_two )
+        except :
+             result , status = { "status":False,"msg":"error when compare between two objects."} , 400
+        
+        # Add to log 
         try :
-            # Add to log 
             endpoint= "/phonotics/compare/"
             obj_Operations.add_to_log (headers=headers,status=status,operation=endpoint,public_id=current_user['public_id'],input=json.dumps(data),output=json.dumps(result)) 
-            print("==="*20)
-            obj_Operations.close_connection()
         except :
             result , status = { "status":False,"msg":"error whean update data to log."} , 400
-    #except :
-    #    result , status = { "status":False,"msg":"error in Search endpoint."} , 400
-        return make_response(jsonify(result),status)
+    except :
+        result , status = { "status":False,"msg":"error in Search endpoint."} , 400    
+    # Close Connection 
+    obj_Operations.close_connection()
+    # Return Response 
+    return make_response(jsonify(result),status)

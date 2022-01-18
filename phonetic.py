@@ -101,29 +101,37 @@ class Phonetics () :
                                 print(key , "  " , key_info.iloc[0,:][weight_type] , "  " , value['ratio']  *  float (key_info.iloc[0,:][weight_type]) )
             else :
                 
-                for   obj in  result[index] :
-                    index_nat_search = None
-                    for id , nat_obj_search in enumerate (obj_search[index]) : 
-                        if nat_obj_search ['nationality'].lower() == obj['nationality']['value'].lower() :
-                            index_nat_search = id
-                            break
-                    for key , value in obj.items() :
-                        key_info = settings[settings['field']== key]
-                        if  obj_search[index][index_nat_search][key] not in [ "",'' , ' ' , None ]  :
-                            if key_info.iloc[0,:]['weight_calculation'] :
-                                count +=float (key_info.iloc[0,:][weight_type])
-                                total = total + value['ratio']  *  float (key_info.iloc[0,:][weight_type])
-                                print(key , "  " , key_info.iloc[0,:][weight_type] , "  " , value['ratio']  *  float (key_info.iloc[0,:][weight_type]) )
 
-                if result[index] in  [list() , dict() , {} ,[] ] :
-                    add_count = 0  
-                    for  obj in obj_search['nationalities'] :
-                        if obj ['nationality'].lower() == "jo":
-                            add_count = 15
+                if obj_search[index] not in [ None , '' , dict() , list() ] : 
+                    for   obj in  result[index] :
+                        index_nat_search = None
+                        for id , nat_obj_search in enumerate (obj_search[index]) : 
+                            if nat_obj_search ['nationality'].lower() == obj['nationality']['value'].lower() :
+                                index_nat_search = id
+                                break
+                        if index_nat_search == None : 
                             break
-                        else : 
-                            add_count = 10 
-                    count = count + add_count 
+                        for key , value in obj.items() :
+                            key_info = settings[settings['field']== key]
+                            if  obj_search[index][index_nat_search][key] not in [ "",'' , ' ' , None ]  :
+                                if key_info.iloc[0,:]['weight_calculation'] :
+
+                                    if  obj_search[index][index_nat_search]['nationality'].lower() == "jo" and  key  in  [ "document_number","document_type"] :
+                                        pass
+                                    else : 
+                                        count +=float (key_info.iloc[0,:][weight_type])
+                                        total = total + value['ratio']  *  float (key_info.iloc[0,:][weight_type])
+                                        print(key , "  " , key_info.iloc[0,:][weight_type] , "  " , value['ratio']  *  float (key_info.iloc[0,:][weight_type]) )
+ 
+                    if result[index] in  [list() , dict() , {} ,[] ] :
+                        add_count = 0  
+                        for  obj in obj_search['nationalities'] :
+                            if obj ['nationality'].lower() == "jo":
+                                add_count = 15
+                                break
+                            else : 
+                                add_count = 10 
+                        count = count + add_count 
 
         print ("total : " , total , "count : " ,count  )
         if total == 0 or count == 0 : return 0 

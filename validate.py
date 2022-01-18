@@ -1,4 +1,3 @@
-
 import pandas as pd 
 
 
@@ -6,51 +5,43 @@ class validations ():
 
     def __init__(self , settings_file ) : 
         self.settings_file = settings_file
-        self.errors = list()
+        self.errors = dict()
 
+        # keys for validation 
+        self.keys = dict()
+        self.keys['headers'] = ['Init-Country','Channel-Identifier','Unique-Reference','Time-Stamp'] 
+        self.keys['primary_keys'] = ["party_id","organization","role","source_country","sequence"]
+        self.keys['object']=["names","nationalities","parties_country"]
+        self.keys['parameters'] = ["is_searchable","is_deleted","party_id","party_type","organization","role","source_country","sequence"]
 
-    def validate__source (self,value) :
+    def validate_keys (self,error_name,data ,keys = None  ) :
+        if keys != None :  
+            self.keys[error_name] = keys 
+        # Validation for primary keys 
+        errors = { error_name : list()} 
+        for key in self.keys[error_name] : 
+            if key not in data.keys() : 
+                errors[error_name].append({"{}".format(key):"{} key is requierd.".format(key)})
+        if errors[error_name] != list() :
+            self.errors[error_name] = errors[error_name]
+        return data
 
-        fields = list (self.settings_file['field'].unique())
-
-        if value == [] or value == None  :
-            return None 
-
-        if type (value) != list : 
-            self.errors.append({"_source":"the data type  must a list"})
-            return value
-
-        fileds_is_not_found = list()
-        for field  in  value : 
-            if  field not in fields :
-                fileds_is_not_found.append("{} field is not found".format(field))
-        if fileds_is_not_found != [] :
-            self.errors.append({"_source": fileds_is_not_found })
-            return value
-        return value
 
 
     def validate_pre_processing (self,value) :
         if  value in [True , False ] :
             return value
         else : 
-            self.errors.append({"pre_processing":"Option '{}' is not found, please select True or False options".format(value)})
+            self.errors["pre_processing"] = "Option '{}' is not found, please select True or False options".format(value)
             return value
 
     def validate_size (self, value) :
         if type(value) != int : 
-            self.errors.append({"size":"The value must be of the Integer type"})
+            self.errors["size"] = "The value must be of the Integer type"
         if value <= 0 :
-            self.errors.append({"size":"size value must be greater than zero"})
+            self.errors["size"] = "size value must be greater than zero"
         return value 
 
-    def validate__sort (self, value) :
-
-        if value == None : 
-            return None 
-        elif type(value) != bool : 
-            self.errors.append({"_sort":"_sort value must boolean type"})
-        return value
 
     def validate_input_object(self , index , _object ) : 
         for field , value in _object.items() :

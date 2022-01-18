@@ -135,6 +135,7 @@ def login():
             obj_Operations.add_to_log (headers = headers , status = 404 , operation=endpoint , public_id='' , input= input , output= json.dumps(output) )
             obj_Operations.close_connection() 
             return make_response(output, 404, {'WWW-Authenticate' : 'Basic realm ="Login required !!"'} ) 
+        
         # Cheak user 
         users =obj_Operations.users
         users = users.loc[users['email'] == data['email'] ,:]
@@ -144,6 +145,7 @@ def login():
             obj_Operations.add_to_log (headers = headers , status = 404 , operation=endpoint , public_id='',input=input ,output= json.dumps(output) ) 
             obj_Operations.close_connection()
             return make_response( output , 404, {'WWW-Authenticate' : 'Basic realm ="User does not exist !!"'} )
+
         # Check password 
         if check_password_hash(users.loc[:,'password'].values[0], data["password"] ): 
             # generates the JWT Token 

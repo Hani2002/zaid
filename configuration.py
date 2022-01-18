@@ -1,7 +1,7 @@
 import os 
 
 # Elasticsearch
-Elasticsearch_Host = '10.101.15.27'
+Elasticsearch_Host = '10.101.15.30'
 Elasticsearch_Port= '9200'
 Elasticsearch_username = 'elastic'
 Elasticsearch_pass = 'abtest' 
